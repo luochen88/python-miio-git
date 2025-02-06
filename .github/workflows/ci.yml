@@ -1,23 +1,48 @@
-The error "exec /bin/sh: exec format error" usually indicates an architecture mismatch.  You're trying to run an ARM-compiled binary (the shell within the Docker container) on a system with a different architecture (likely x86_64).  While you're specifying --platform linux/arm/v7, the issue lies in the nested docker run command.
+name: Build Python-miio for ARMv7 using QEMU
 
-Here's the breakdown of the problem and the solution:
+on:
+  push:
+    branches:
+      - main  # 自动触发条件：当 main 分支有新的提交时
+  pull_request:
+    branches:
+      - main  # 自动触发条件：当有 PR 合并到 main 分支时
+  workflow_dispatch:  # 手动触发条件
 
-Nested docker run: You're attempting to run a Docker container inside another Docker container, and the inner container inherits the architecture of the outer Docker daemon, not the --platform flag you specified.  This flag only affects the initial image pull.  Since your host machine likely isn't ARM, the inner docker run tries to execute an ARM binary on a non-ARM system, resulting in the exec format error.
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-Incorrect Shell Command:  You're mixing the commands for running the container and the commands to be executed inside the container. The \  continues the Docker command, not the shell command within it. This leads to the outer docker run trying to execute /bin/sh -c " docker run ..., which isn't what you intend.
+      - name: Set up QEMU for ARM
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm
 
-Here's how to fix it:  Combine everything into a single docker run command:
+      - name: Set up Python for ARMv7
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+          sudo update-binfmts --install arm /usr/bin/qemu-arm-static --magic '\x7fELF\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x28\x00\x01\x00\x00\x00' --mask '\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff'
 
-bash
-docker run --rm --platform linux/arm/v7 -v $(pwd):/workspace -w /workspace arm32v7/python:3-slim /bin/sh -c "
-  python -m venv venv && \
-  . venv/bin/activate && \
-  pip install --upgrade pip && \
-  pip install git+https://github.com/rytilahti/python-miio.git && \
-  python -c 'import miio; print(miio.__version__)' > version.txt
-"
-This single command does the following:
+      - name: Create virtual environment and install python-miio
+        run: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install --upgrade pip
+          pip install git+https://github.com/rytilahti/python-miio.git
+          python -c 'import miio; print(miio.__version__)' > version.txt
 
-Pulls the correct image: docker run --rm --platform linux/arm/v7 ... arm32v7/python:3-slim pulls the ARM-based Python image.
-Executes the commands within the ARM container: /bin/sh -c "..." executes the provided commands within the ARM container, ensuring the correct architecture.
-By removing the nested docker run and correctly structuring the command, you should be able to run your Python script within the ARM container successfully.  This avoids the architecture mismatch and ensures the entire process occurs within the emulated ARM environment.
+      - name: Archive virtual environment
+        run: |
+          tar -czvf python-miio-armv7.tar.gz venv/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-miio-armv7
+          path: |
+            python-miio-armv7.tar.gz
+            version.txt
