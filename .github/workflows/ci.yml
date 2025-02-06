@@ -1,28 +1,47 @@
+name: Build Python-miio for ARMv7
 
-
-name: ARMv7 Build python-miio
-
-on: [push]
+on:
+  push:
+    branches:
+      - main  # 你可以根据需要更改分支名称
 
 jobs:
   build:
-    name: Build for ARMv7
     runs-on: ubuntu-latest
     steps:
-      - name: Run in ARMv7 container
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # 你可以根据需要更改 Python 版本
+
+      - name: Install QEMU for ARMv7
         run: |
-          docker run --rm --platform arm32v7/python:3 \
-            /bin/bash -c "
-            python -m venv python-miio-git &&
-            source python-miio-git/bin/activate &&
-            pip install git+https://github.com/rytilahti/python-miio.git &&
-            git clone https://github.com/luochen88/python-miio-git.git shell &&
-            cp shell/{miplug.sh override,yaml} python-miio/ &&
-            tar -zcvf python-miio-git.tar.gz python-miio
-            pytest tests/ &&
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
 
-            "
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v4.1.8
+      - name: Create virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
 
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install python-miio
 
+      - name: Test Python-miio installation
+        run: |
+          python -c "import miio; print(miio.__version__)"
+
+      - name: Archive virtual environment
+        run: |
+          tar -czvf python-miio-armv7.tar.gz venv/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: python-miio-armv7
+          path: python-miio-armv7.tar.gz
