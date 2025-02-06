@@ -21,13 +21,13 @@ jobs:
 
       - name: Build and run in ARMv7 container
         run: |
-          docker run --rm --platform linux/arm/v7 -v $(pwd):/workspace -w /workspace arm32v7/python:3 \
-          /bin/bash -c "
+          docker run --rm --platform linux/arm/v7 -v $(pwd):/workspace -w /workspace arm32v7/python:3-slim \
+          /bin/sh -c "
           python -m venv venv && \
           . venv/bin/activate && \
           pip install --upgrade pip && \
           pip install git+https://github.com/rytilahti/python-miio.git && \
-          python -c 'import miio; print(miio.__version__)'
+          python -c 'import miio; print(miio.__version__)' > version.txt
           "
 
       - name: Archive virtual environment
@@ -38,4 +38,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-miio-armv7
-          path: python-miio-armv7.tar.gz
+          path: |
+            python-miio-armv7.tar.gz
+            version.txt
