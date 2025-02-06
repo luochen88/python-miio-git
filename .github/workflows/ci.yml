@@ -42,7 +42,7 @@ jobs:
           tar -czvf python-miio-armv7.tar.gz venv/
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: python-miio-armv7
           path: python-miio-armv7.tar.gz
