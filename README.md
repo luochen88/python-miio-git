@@ -4,7 +4,7 @@
 # 使用说明
 # 将本压缩包解压到 /opt 目录下
 
-tar -zcvf python-miio-git.tar.gz
+ tar -zcvf python-miio-git.tar.gz
 
 # 修改 miplug.sh 填写智能插座的IP和TOKEN
 # 获取智能插座的IP和TOKEN请参考 
@@ -15,11 +15,11 @@ tar -zcvf python-miio-git.tar.gz
 
 # 复制 miplug.sh 到 /etc/kvmd/ 目录下
 
-cp miplug.sh /etc/kvmd/
-chmod -x /etc/kvmd/miplug.sh
+ cp miplug.sh /etc/kvmd/
+ chmod -x /etc/kvmd/miplug.sh
 
 # 备份 ovreeide.yaml
-cp /etc/kvmd/ovreeide.yaml /etc/kvmd/ovreeide.yaml.backup
+ cp /etc/kvmd/ovreeide.yaml /etc/kvmd/ovreeide.yaml.backup
 # 参考 override.yaml 修改 /etc/kvmd/override.yaml 添加对应参数
 
             miplug_on: # 米家智能插座控制开
@@ -43,4 +43,4 @@ cp /etc/kvmd/ovreeide.yaml /etc/kvmd/ovreeide.yaml.backup
                 - ["#智能插座:",start_power|开,stop_power|关] #UI
 
 # 重启kvmd kvmd-nginx
-systemctl restart kvmd kvmd-nginx
+ systemctl restart kvmd kvmd-nginx
