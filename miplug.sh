@@ -3,7 +3,7 @@
 # 设备信息
 # 获取智能插座的IP和TOKEN请参考 
 # https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor
-DEVICE_IP="192.168.1"
+DEVICE_IP="192.168.1.1"
 DEVICE_TOKEN="设备TOKEN"
 
 # 设备类型详看 python-miio 官方文档
