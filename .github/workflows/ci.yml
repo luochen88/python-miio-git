@@ -9,28 +9,9 @@ jobs:
     name: Build for ARMv7
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build ARMv7 environment
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/arm/v7
-          tags: python-armv7-env
-          load: true
-
       - name: Run in ARMv7 container
         run: |
-          docker run --rm --platform linux/arm/v7 python-armv7-env \
+          docker run --rm --platform arm32v7/python:3 \
             /bin/bash -c "
             python -m venv python-miio-git &&
             source python-miio-git/bin/activate &&
