@@ -24,7 +24,7 @@ jobs:
       - name: Set up Python for ARMv7
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static
+          sudo apt-get install -y qemu-user-static binfmt-support
           sudo update-binfmts --install arm /usr/bin/qemu-arm-static --magic '\x7fELF\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x28\x00\x01\x00\x00\x00' --mask '\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff'
 
       - name: Create virtual environment and install python-miio
