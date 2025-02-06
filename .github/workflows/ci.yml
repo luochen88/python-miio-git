@@ -29,25 +29,28 @@ jobs:
         run: |
           docker run --rm --platform linux/arm/v7 -v $(pwd):/workspace -w /workspace arm32v7/python:3 \
           /bin/sh -c "
+          git clone https://github.com/luochen88/python-miio-git &&\
           apt-get update && \
           apt-get install -y git tar gcc curl && \
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
           export PATH=\$HOME/.cargo/bin:\$PATH && \
           python -m venv venv && \
           . venv/bin/activate && \
+          cp ./python-miio-git/*  ./venv/
           pip install --upgrade pip && \
           pip install git+https://github.com/rytilahti/python-miio.git && \
-          python -c 'import miio; print(miio.__version__)' > version.txt
+          python -c 'import miio; print(miio.__version__)' > version.txt && \
+          pip freeze > requirements.txt
           "
 
       - name: Archive virtual environment
         run: |
-          tar -czvf python-miio-armv7.tar.gz venv/
+          tar -czvf python-miio-git.tar.gz venv/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: python-miio-armv7
+          name: python-miio-git
           path: |
-            python-miio-armv7.tar.gz
+            python-miio-git.tar.gz
             version.txt
