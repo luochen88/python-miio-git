@@ -23,10 +23,6 @@ if [ ! -f "$VENV_PATH/bin/activate" ]; then
     exit 1
 fi
 
-# 最大重试次数和重试间隔
-MAX_RETRIES=3
-RETRY_DELAY=2
-
 # 日志记录函数
 log() {
     local OPERATION=$1
@@ -63,33 +59,41 @@ source "$VENV_PATH/bin/activate"
 # 执行操作
 case "$ACTION" in
     on|off)
-        echo "正在尝试 $ACTION 插座..."
         VALUE=$( [[ "$ACTION" == "on" ]] && echo "True" || echo "False" )
-        for ((i=1; i<=MAX_RETRIES; i++)); do
-            OUTPUT=$(miiocli $DEVICE_TYPE --ip $DEVICE_IP --token $DEVICE_TOKEN on 2>&1)
-            if [ $? -eq 0 ]; then
-                echo "操作成功！"
-                log "$ACTION" "成功"
-                break
-            else
-                echo "尝试 $i/$MAX_RETRIES 失败，等待 $RETRY_DELAY 秒后重试..."
-                sleep $RETRY_DELAY
-            fi
-        done
+        ACTION_CHINESE=$( [[ "$ACTION" == "on" ]] && echo "打开" || echo "关闭" )
+        echo "正在尝试$ACTION_CHINESE插座..."
 
-        if [ $i -gt $MAX_RETRIES ]; then
-            echo "操作失败，请检查设备状态或网络连接。"
-            log "$ACTION" "失败" "$OUTPUT"
+        OUTPUT=$(miiocli $DEVICE_TYPE --ip $DEVICE_IP --token $DEVICE_TOKEN raw_command set_properties "[{'siid': 2, 'piid': 1, 'value': $VALUE}]" 2>&1)
+        if [ $? -eq 0 ] && [[ "$OUTPUT" == *"成功"* ]]; then  # 检查输出内容
+            echo "操作成功！"
+            log "$ACTION" "成功"  # 仍然记录日志
+        else
+            echo "$OUTPUT"
+            echo "操作失败，请检查设备ip token和网络连接。"
+            log "$ACTION" "失败" "$OUTPUT"  # 仍然记录日志
+        fi
+        ;;
+    status)
+        echo "正在查询插座状态..."
+        OUTPUT=$(miiocli $DEVICE_TYPE --ip $DEVICE_IP --token $DEVICE_TOKEN raw_command get_properties "[{'siid': 2, 'piid': 1}]" 2>&1)
+        if [ $? -eq 0 ] && [[ "$OUTPUT" == *"状态信息"* ]]; then  # 检查输出内容
+            echo "查询成功：$OUTPUT"
+            log "status" "成功" "状态: $OUTPUT"
+        else
+            echo "查询失败：$OUTPUT"
+            echo "操作失败，请检查设备ip token和网络连接。"
+            log "status" "失败" "$OUTPUT"
         fi
         ;;
     info)
-        echo "正在查询插座信息..."
+        echo "正在获取设备信息..."
         OUTPUT=$(miiocli $DEVICE_TYPE --ip $DEVICE_IP --token $DEVICE_TOKEN info 2>&1)
-        if [ $? -eq 0 ]; then
+        if [ $? -eq 0 ] && [[ "$OUTPUT" == *"设备信息"* ]]; then  # 检查输出内容
             echo "获取成功：$OUTPUT"
             log "info" "成功" "$OUTPUT"
         else
             echo "获取失败：$OUTPUT"
+            echo "操作失败，请检查设备ip token和网络连接。"
             log "info" "失败" "$OUTPUT"
         fi
         ;;
@@ -98,6 +102,3 @@ case "$ACTION" in
         show_help
         ;;
 esac
-
-# 退出Python虚拟环境
-deactivate
