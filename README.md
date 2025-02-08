@@ -12,7 +12,6 @@
    sudo mkdir -p /opt/python-miio-git
    sudo tar -zxvf python-miio-git.tar.gz -C /opt/python-miio-git
 
-
 2. **修改配置文件**  
    修改 `miplug.sh` 文件，填写智能插座的 IP 和 TOKEN。获取智能插座的 IP 和 TOKEN 请参考 [Xiaomi-cloud-tokens-extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor),[Obtaining tokens](https://python-miio.readthedocs.io/en/latest/discovery.html#obtaining-tokens)
 
@@ -23,8 +22,6 @@
    sudo cp miplug.sh /etc/kvmd/
    sudo chmod +x /etc/kvmd/miplug.sh
 
-
-
 4. **配置日志权限**  
    创建日志文件并修改权限：
    ```bash
@@ -32,14 +29,10 @@
    sudo chown kvmd:kvmd /var/log/miplug.log
    sudo chmod 664 /var/log/miplug.log
 
-
-
 5. **备份配置文件**  
    备份 `ovreeide.yaml` 文件：
    ```bash
    sudo cp /etc/kvmd/ovreeide.yaml /etc/kvmd/ovreeide.yaml.backup
-
-
 
 6. **修改 override.yaml**  
    根据 `override.yaml` 的参考，修改 `/etc/kvmd/override.yaml` 文件，添加对应参数：
@@ -64,8 +57,6 @@
        switch: false
 
    - ["#智能插座:", start_power|开, stop_power|关] # UI
-
-
 
 7. **重启服务**  
    重启 `kvmd` 和 `kvmd-nginx` 服务：
