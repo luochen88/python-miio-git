@@ -14,7 +14,7 @@
 
 
 2. **修改配置文件**  
-   修改 `miplug.sh` 文件，填写智能插座的 IP 和 TOKEN。获取智能插座的 IP 和 TOKEN 请参考 [Xiaomi-cloud-tokens-extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor)。
+   修改 `miplug.sh` 文件，填写智能插座的 IP 和 TOKEN。获取智能插座的 IP 和 TOKEN 请参考 [Xiaomi-cloud-tokens-extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor),[Obtaining tokens](https://python-miio.readthedocs.io/en/latest/discovery.html#obtaining-tokens)
 
    默认设备类型: `genericmiot`。设备类型详情请参见 `python-miio` 官方文档：[Controlling Modern MiOT Devices](https://python-miio.readthedocs.io/en/latest/index.html#controlling-modern-miot-devices)。
 3. **复制脚本文件**  
