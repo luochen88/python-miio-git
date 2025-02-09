@@ -2,6 +2,10 @@
 
 本包是为玩客云 PiKVM 打包的 `python-miio-git` 虚拟环境。
 
+本包每周一会自动编译
+
+下载请转跳至[Releases](https://github.com/luochen88/python-miio-git/releases/)
+
 源项目地址: [python-miio](https://github.com/rytilahti/python-miio)
 
 ## 使用说明
