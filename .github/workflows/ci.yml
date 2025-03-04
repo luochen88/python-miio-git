@@ -1,32 +1,27 @@
 name: Build Python-miio for ARMv7 using Docker and QEMU
-
 on:
   push:
     branches:
-      - main  # 自动触发条件：当 main 分支有新的提交时
+      - main
   pull_request:
     branches:
-      - main  # 自动触发条件：当有 PR 合并到 main 分支时
-  workflow_dispatch:  # 手动触发条件
+      - main
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 1'  # 每周一 00:00 UTC 触发
-
+    - cron: '0 0 * * 1'
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Set up QEMU for ARM
         uses: docker/setup-qemu-action@v2
         with:
           platforms: arm
-
       - name: Register QEMU static binaries
         run: |
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-
       - name: Build and run in ARMv7 container
         run: |
           docker run --rm --platform linux/arm/v7 -v $(pwd):/workspace -w /workspace arm32v7/python:3 \
@@ -38,17 +33,15 @@ jobs:
           export PATH=\$HOME/.cargo/bin:\$PATH && \
           python -m venv venv && \
           . venv/bin/activate && \
-          cp ./python-miio-git/*  ./venv/
+          cp ./python-miio-git/*  ./venv/ && \
           pip install --upgrade pip && \
           pip install git+https://github.com/rytilahti/python-miio.git && \
           python -c 'import miio; print(miio.__version__)' > version.txt && \
           pip freeze > requirements.txt
           "
-
       - name: Archive virtual environment
         run: |
           tar -czvf python-miio-git.tar.gz venv/
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -56,9 +49,9 @@ jobs:
           path: |
             python-miio-git.tar.gz
             version.txt
-       - name: Upload release asset
+      - name: Upload release asset
         uses: softprops/action-gh-release@v1
         with:
-          files: python-miio-git.tar.gz  # 将 python-miio-git.tar.gz 文件上传到 GitHub Releases
+          files: python-miio-git.tar.gz
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN 来进行认证
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
